@@ -32,26 +32,52 @@ Both targets use ESP32-S3R8 modules with 16 MB flash and 8 MB OPI PSRAM. The boa
 ### Build ONX2432G028
 
 ```bash
+rm -rf /private/tmp/onx2432-build /private/tmp/onx2432-libs
+mkdir -p /private/tmp/onx2432-libs
+
+cp -R ~/Documents/Arduino/libraries/TFT_eSPI /private/tmp/onx2432-libs/CustomTFT_eSPI
+rm -f /private/tmp/onx2432-libs/CustomTFT_eSPI/User_Setup_Select.h
+cp User*.h /private/tmp/onx2432-libs/CustomTFT_eSPI/
+
+sed -i '' 's|^//#include <User_Setup_onx2432g028.h>|#include <User_Setup_onx2432g028.h>|' \
+  /private/tmp/onx2432-libs/CustomTFT_eSPI/User_Setup_Select.h
+
 arduino-cli compile \
   --fqbn "esp32:esp32:esp32s3:PartitionScheme=default_8MB,FlashSize=16M,PSRAM=opi,CDCOnBoot=default,UploadMode=default" \
+  --library /private/tmp/onx2432-libs/CustomTFT_eSPI \
+  --libraries libraries \
   --warnings none \
   --build-path /private/tmp/onx2432-build \
   --build-property "compiler.cpp.extra_flags=-DMARAUDER_ONX2432G028" \
+  --build-property "compiler.c.elf.extra_flags=-Wl,--allow-multiple-definition" \
   esp32_marauder
 ```
 
 ### Build ONX3248G035
 
 ```bash
+rm -rf /private/tmp/onx3248-build /private/tmp/onx3248-libs
+mkdir -p /private/tmp/onx3248-libs
+
+cp -R ~/Documents/Arduino/libraries/TFT_eSPI /private/tmp/onx3248-libs/CustomTFT_eSPI
+rm -f /private/tmp/onx3248-libs/CustomTFT_eSPI/User_Setup_Select.h
+cp User*.h /private/tmp/onx3248-libs/CustomTFT_eSPI/
+
+sed -i '' 's|^//#include <User_Setup_onx3248g035.h>|#include <User_Setup_onx3248g035.h>|' \
+  /private/tmp/onx3248-libs/CustomTFT_eSPI/User_Setup_Select.h
+
 arduino-cli compile \
   --fqbn "esp32:esp32:esp32s3:PartitionScheme=default_8MB,FlashSize=16M,PSRAM=opi,CDCOnBoot=default,UploadMode=default" \
+  --library /private/tmp/onx3248-libs/CustomTFT_eSPI \
+  --libraries libraries \
   --warnings none \
   --build-path /private/tmp/onx3248-build \
   --build-property "compiler.cpp.extra_flags=-DMARAUDER_ONX3248G035" \
+  --build-property "compiler.c.elf.extra_flags=-Wl,--allow-multiple-definition" \
   esp32_marauder
 ```
 
-Before local builds, make sure the matching TFT_eSPI setup file is selected in `User_Setup_Select.h`. The GitHub Actions workflow performs this selection automatically through the board matrix.
+The commands above build with a temporary `CustomTFT_eSPI` copy and select the matching TFT setup there, so the global Arduino library installation is not modified. The GitHub Actions workflow performs the same setup selection automatically through the board matrix.
 
 ### Flash Firmware
 
