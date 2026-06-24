@@ -1502,8 +1502,7 @@ void WiFiScan::RunSetup() {
     this->wsl_bypass_enabled = false;
 
   #ifdef HAS_PSRAM
-    ssids = new (ps_malloc(sizeof(LinkedList<ssid>))) LinkedList<ssid>();
-    new (ssids) LinkedList<ssid>();
+    ssids = new(ps_malloc(sizeof(LinkedList<ssid>))) LinkedList<ssid>();
   #else
     ssids = new LinkedList<ssid>();
   #endif
@@ -2822,13 +2821,10 @@ String WiFiScan::security_int_to_string(int security_type) {
 void WiFiScan::startPcap(String file_name) {
   buffer_obj.pcapOpen(
     file_name,
-    #if defined(HAS_SD)
-      sd_obj.supported ?
-        #if defined(HAS_ONX_SD_MMC)
-          &SD_MMC :
-        #else
-          &SD :
-        #endif
+    #if defined(HAS_ONX_SD_MMC)
+      sd_obj.supported ? &SD_MMC :
+    #elif defined(HAS_SD)
+      sd_obj.supported ? &SD :
     #endif
     NULL,
     save_serial // Set with commandline options
@@ -2838,13 +2834,10 @@ void WiFiScan::startPcap(String file_name) {
 void WiFiScan::startLog(String file_name) {
   buffer_obj.logOpen(
     file_name,
-    #if defined(HAS_SD)
-      sd_obj.supported ?
-        #if defined(HAS_ONX_SD_MMC)
-          &SD_MMC :
-        #else
-          &SD :
-        #endif
+    #if defined(HAS_ONX_SD_MMC)
+      sd_obj.supported ? &SD_MMC :
+    #elif defined(HAS_SD)
+      sd_obj.supported ? &SD :
     #endif
     NULL,
     save_serial // Set with commandline options
@@ -2854,13 +2847,10 @@ void WiFiScan::startLog(String file_name) {
 void WiFiScan::startGPX(String file_name) {
   buffer_obj.gpxOpen(
     file_name,
-    #if defined(HAS_SD)
-      sd_obj.supported ?
-        #if defined(HAS_ONX_SD_MMC)
-          &SD_MMC :
-        #else
-          &SD :
-        #endif
+    #if defined(HAS_ONX_SD_MMC)
+      sd_obj.supported ? &SD_MMC :
+    #elif defined(HAS_SD)
+      sd_obj.supported ? &SD :
     #endif
     NULL,
     save_serial // Set with commandline options

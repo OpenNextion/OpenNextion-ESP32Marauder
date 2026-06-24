@@ -37,6 +37,7 @@
   //#define MARAUDER_M5_NANO_C6
   //#define DUAL_MINI_C5
   //#define MARAUDER_ONX2432G028
+  //#define MARAUDER_ONX3248G035
   //// END BOARD TARGETS
 
   #define JSON_SETTING_SIZE 2048
@@ -112,6 +113,8 @@
     #define HARDWARE_NAME "M5 Nano C6"
   #elif defined(MARAUDER_ONX2432G028)
     #define HARDWARE_NAME "ONX2432G028"
+  #elif defined(MARAUDER_ONX3248G035)
+    #define HARDWARE_NAME "ONX3248G035"
   #else
     #define HARDWARE_NAME "ESP32"
   #endif
@@ -553,11 +556,11 @@
     #define HAS_IDF_3
   #endif
 
-  #ifdef MARAUDER_ONX2432G028
+  #if defined(MARAUDER_ONX2432G028) || defined(MARAUDER_ONX3248G035)
     #define HAS_TOUCH
     //#define FLIPPER_ZERO_HAT
     //#define HAS_BATTERY
-    #ifndef MARAUDER_ONX2432G028_NO_BT
+    #if !defined(MARAUDER_ONX2432G028_NO_BT) && !defined(MARAUDER_ONX3248G035_NO_BT)
       #define HAS_BT
     #endif
     //#define HAS_BUTTONS
@@ -1671,6 +1674,104 @@
       #define KIT_LED_BUILTIN 13
     #endif
 
+    #if defined(MARAUDER_ONX3248G035)
+      #define CHAN_PER_PAGE 7
+
+      #define SCREEN_CHAR_WIDTH 40
+      #define HAS_ILI9341
+      #define HAS_ST7796
+
+      #define BANNER_TEXT_SIZE 2
+
+      #ifndef TFT_WIDTH
+        #define TFT_WIDTH 320
+      #endif
+
+      #ifndef TFT_HEIGHT
+        #define TFT_HEIGHT 480
+      #endif
+
+      // ONX3248G035 uses a 3.5" ST7796U SPI panel with CST826 I2C capacitive touch.
+      #define GRAPH_VERT_LIM TFT_HEIGHT/2 - 1
+
+      #define EXT_BUTTON_WIDTH 30
+
+      #define SCREEN_BUFFER
+
+      #define MAX_SCREEN_BUFFER 33
+
+      #define SCREEN_ORIENTATION 0
+
+      #define CHAR_WIDTH 12
+      #define SCREEN_WIDTH TFT_WIDTH
+      #define SCREEN_HEIGHT TFT_HEIGHT
+      #define HEIGHT_1 TFT_WIDTH
+      #define WIDTH_1 TFT_HEIGHT
+      #define STANDARD_FONT_CHAR_LIMIT (TFT_WIDTH/6)
+      #define TEXT_HEIGHT 16
+      #define BOT_FIXED_AREA 0
+      #define TOP_FIXED_AREA 48
+      #define YMAX 480
+      #define minimum(a,b)     (((a) < (b)) ? (a) : (b))
+      #define MENU_FONT &FreeMono9pt7b
+      #define BUTTON_SCREEN_LIMIT 12
+      #define BUTTON_ARRAY_LEN BUTTON_SCREEN_LIMIT
+      #define STATUS_BAR_WIDTH 16
+      #define LVGL_TICK_PERIOD 6
+
+      #define FRAME_X 100
+      #define FRAME_Y 64
+      #define FRAME_W TFT_WIDTH / 2
+      #define FRAME_H 50
+
+      #define REDBUTTON_X FRAME_X
+      #define REDBUTTON_Y FRAME_Y
+      #define REDBUTTON_W (FRAME_W/2)
+      #define REDBUTTON_H FRAME_H
+
+      #define GREENBUTTON_X (REDBUTTON_X + REDBUTTON_W)
+      #define GREENBUTTON_Y FRAME_Y
+      #define GREENBUTTON_W (FRAME_W/2)
+      #define GREENBUTTON_H FRAME_H
+
+      #define STATUSBAR_COLOR 0x4A49
+
+      #define ONX3248G035_I2C_SDA 8
+      #define ONX3248G035_I2C_SCL 7
+      #define ONX3248G035_CST826_ADDR 0x15
+      #define ONX3248G035_CST826_DATA_REG 0x02
+      #define ONX3248G035_PCF8574_ADDR 0x38
+      #define ONX3248G035_PCF8574_LCD_RST_PIN 6
+      #define ONX3248G035_PCF8574_SD_CS_PIN 7
+      #define ONX3248G035_SD_CLK 11
+      #define ONX3248G035_SD_CMD 10
+      #define ONX3248G035_SD_D0 9
+    #endif
+
+    #if defined(MARAUDER_ONX2432G028)
+      #define ONX_I2C_SDA ONX2432G028_I2C_SDA
+      #define ONX_I2C_SCL ONX2432G028_I2C_SCL
+      #define ONX_CST826_ADDR ONX2432G028_CST826_ADDR
+      #define ONX_CST826_DATA_REG ONX2432G028_CST826_DATA_REG
+      #define ONX_PCF8574_ADDR ONX2432G028_PCF8574_ADDR
+      #define ONX_PCF8574_LCD_RST_PIN ONX2432G028_PCF8574_LCD_RST_PIN
+      #define ONX_PCF8574_SD_CS_PIN ONX2432G028_PCF8574_SD_CS_PIN
+      #define ONX_SD_CLK ONX2432G028_SD_CLK
+      #define ONX_SD_CMD ONX2432G028_SD_CMD
+      #define ONX_SD_D0 ONX2432G028_SD_D0
+    #elif defined(MARAUDER_ONX3248G035)
+      #define ONX_I2C_SDA ONX3248G035_I2C_SDA
+      #define ONX_I2C_SCL ONX3248G035_I2C_SCL
+      #define ONX_CST826_ADDR ONX3248G035_CST826_ADDR
+      #define ONX_CST826_DATA_REG ONX3248G035_CST826_DATA_REG
+      #define ONX_PCF8574_ADDR ONX3248G035_PCF8574_ADDR
+      #define ONX_PCF8574_LCD_RST_PIN ONX3248G035_PCF8574_LCD_RST_PIN
+      #define ONX_PCF8574_SD_CS_PIN ONX3248G035_PCF8574_SD_CS_PIN
+      #define ONX_SD_CLK ONX3248G035_SD_CLK
+      #define ONX_SD_CMD ONX3248G035_SD_CMD
+      #define ONX_SD_D0 ONX3248G035_SD_D0
+    #endif
+
     #ifdef MARAUDER_V7
       #define CHAN_PER_PAGE 7
 
@@ -2394,12 +2495,12 @@
     #define BUTTON_PADDING 10
   #endif
 
-  #ifdef MARAUDER_ONX2432G028
+  #if defined(MARAUDER_ONX2432G028) || defined(MARAUDER_ONX3248G035)
     #define BANNER_TIME 50
 
     #define COMMAND_PREFIX "!"
 
-    // ONX2432G028 has no discrete buttons; use the full-screen touch menu geometry.
+    // ONX boards have no discrete buttons; use the full-screen touch menu geometry.
     #define KEY_X (SCREEN_WIDTH/2)
     #define KEY_Y (TFT_HEIGHT/6)
     #define KEY_W SCREEN_WIDTH
@@ -2821,9 +2922,9 @@
       #define I2C_SDA 5
     #endif
 
-    #ifdef MARAUDER_ONX2432G028
-      #define I2C_SDA ONX2432G028_I2C_SDA
-      #define I2C_SCL ONX2432G028_I2C_SCL
+    #if defined(MARAUDER_ONX2432G028) || defined(MARAUDER_ONX3248G035)
+      #define I2C_SDA ONX_I2C_SDA
+      #define I2C_SCL ONX_I2C_SCL
     #endif
 
   #endif
@@ -2857,7 +2958,7 @@
     #define MARAUDER_TITLE_BYTES 13578
   #elif defined(MARAUDER_MINI_V3)
     #define MARAUDER_TITLE_BYTES 13578
-  #elif defined(MARAUDER_ONX2432G028)
+  #elif defined(MARAUDER_ONX2432G028) || defined(MARAUDER_ONX3248G035)
     #define MARAUDER_TITLE_BYTES 13578
   #else
     #define MARAUDER_TITLE_BYTES 13578

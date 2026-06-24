@@ -30,16 +30,16 @@ bool SDInterface::initSD() {
 
     delay(10);
     #if defined(HAS_ONX_SD_MMC)
-      // ONX2432G028 uses 1-bit SDMMC on GPIO11/10/9. Its SDCS line is routed
+      // ONX boards use 1-bit SDMMC on GPIO11/10/9. The SDCS line is routed
       // through PCF8574 EXIO7 and must stay high before mounting the card.
-      Wire.begin(ONX2432G028_I2C_SDA, ONX2432G028_I2C_SCL);
+      Wire.begin(ONX_I2C_SDA, ONX_I2C_SCL);
       Wire.setClock(100000);
-      Wire.beginTransmission(ONX2432G028_PCF8574_ADDR);
+      Wire.beginTransmission(ONX_PCF8574_ADDR);
       Wire.write(0xFF);
       Wire.endTransmission();
-      pinMode(ONX2432G028_SD_CMD, INPUT_PULLUP);
-      pinMode(ONX2432G028_SD_D0, INPUT_PULLUP);
-      SD_MMC.setPins(ONX2432G028_SD_CLK, ONX2432G028_SD_CMD, ONX2432G028_SD_D0);
+      pinMode(ONX_SD_CMD, INPUT_PULLUP);
+      pinMode(ONX_SD_D0, INPUT_PULLUP);
+      SD_MMC.setPins(ONX_SD_CLK, ONX_SD_CMD, ONX_SD_D0);
       if (!SD_MMC.begin("/sdcard", true, false, SDMMC_FREQ_DEFAULT)) {
     #elif (defined(MARAUDER_M5STICKC)) || (defined(HAS_CYD_TOUCH)) || (defined(MARAUDER_CARDPUTER)) || (defined(MARAUDER_CARDPUTER_ADV))
       /* Set up SPI SD Card using external pin header

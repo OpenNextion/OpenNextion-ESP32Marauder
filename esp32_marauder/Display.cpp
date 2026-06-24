@@ -16,7 +16,7 @@ void Display::onxI2CBegin() {
   static bool i2cStarted = false;
 
   if (!i2cStarted) {
-    Wire.begin(ONX2432G028_I2C_SDA, ONX2432G028_I2C_SCL);
+    Wire.begin(ONX_I2C_SDA, ONX_I2C_SCL);
     Wire.setClock(100000);
     i2cStarted = true;
   }
@@ -35,7 +35,7 @@ bool Display::onxPcf8574WritePin(uint8_t pin, bool level) {
     onxPcf8574State &= ~bitMask;
   }
 
-  Wire.beginTransmission(ONX2432G028_PCF8574_ADDR);
+  Wire.beginTransmission(ONX_PCF8574_ADDR);
   Wire.write(onxPcf8574State);
   return Wire.endTransmission() == 0;
 }
@@ -43,10 +43,10 @@ bool Display::onxPcf8574WritePin(uint8_t pin, bool level) {
 void Display::onxResetDisplay() {
   this->onxI2CBegin();
 
-  // ONX2432G028 routes LCD reset through PCF8574 EXIO6, so TFT_eSPI cannot pulse it directly.
-  this->onxPcf8574WritePin(ONX2432G028_PCF8574_LCD_RST_PIN, false);
+  // ONX boards route LCD reset through PCF8574 EXIO6, so TFT_eSPI cannot pulse it directly.
+  this->onxPcf8574WritePin(ONX_PCF8574_LCD_RST_PIN, false);
   delay(200);
-  this->onxPcf8574WritePin(ONX2432G028_PCF8574_LCD_RST_PIN, true);
+  this->onxPcf8574WritePin(ONX_PCF8574_LCD_RST_PIN, true);
   delay(200);
 }
 
@@ -54,13 +54,13 @@ bool Display::onxReadTouch(uint16_t *x, uint16_t *y) {
   uint8_t data[5] = {0};
 
   this->onxI2CBegin();
-  Wire.beginTransmission(ONX2432G028_CST826_ADDR);
-  Wire.write(ONX2432G028_CST826_DATA_REG);
+  Wire.beginTransmission(ONX_CST826_ADDR);
+  Wire.write(ONX_CST826_DATA_REG);
   if (Wire.endTransmission(false) != 0) {
     return false;
   }
 
-  const uint8_t bytesRead = Wire.requestFrom((uint8_t)ONX2432G028_CST826_ADDR, (uint8_t)sizeof(data));
+  const uint8_t bytesRead = Wire.requestFrom((uint8_t)ONX_CST826_ADDR, (uint8_t)sizeof(data));
   if (bytesRead != sizeof(data)) {
     return false;
   }
