@@ -15,12 +15,16 @@
   <a href="https://www.instagram.com/just.call.me.koko"><img src="https://img.shields.io/badge/Follow%20Me-Instagram-orange" alt="Instagram"/></a>
   <br><br>
 </p>
-    
-[![Build and Push](https://github.com/justcallmekoko/ESP32Marauder/actions/workflows/build_push.yml/badge.svg)](https://github.com/justcallmekoko/ESP32Marauder/actions/workflows/build_push.yml)
+
 
 ## OpenNextion Board Support
 
 This fork adds ESP32 Marauder support for the following OpenNextion ESP32-S3 boards while the upstream pull requests are under review.
+Original project: [justcallmekoko/ESP32Marauder](https://github.com/justcallmekoko/ESP32Marauder)
+
+[![OpenNextion ESP32 Marauder demo](https://github.com/OpenNextion/OpenNextion-Example-ESP32Marauder/releases/download/demo-screenshot/demo_screenshot.jpg)](https://github.com/OpenNextion/OpenNextion-Example-ESP32Marauder/releases/tag/demo-video)
+
+Click the screenshot above to open the demo video.
 
 | Board | Display | Touch | Storage | Build flag | TFT setup |
 | --- | --- | --- | --- | --- | --- |
@@ -124,10 +128,16 @@ python -m esptool --chip esp32s3 -p /dev/cu.wchusbserial1110 -b 921600 write_fla
 
 For ONX3248G035, use `/private/tmp/onx3248-build` and output `./onx3248g035_merged.bin`.
 
-## Getting Started
-Download the [latest release](https://github.com/justcallmekoko/ESP32Marauder/releases/latest) of the firmware.  
+## Original ESP32 Marauder Project
 
-Check out the project [wiki](https://github.com/justcallmekoko/ESP32Marauder/wiki) for a full overview of the ESP32 Marauder
+The following links refer to the upstream ESP32 Marauder project.
 
-# For Sale Now
-You can buy the ESP32 Marauder using [this link](https://www.justcallmekokollc.com)
+### Getting Started
+
+Download the [latest release](https://github.com/justcallmekoko/ESP32Marauder/releases/latest) of the upstream firmware.
+
+Check out the upstream project [wiki](https://github.com/justcallmekoko/ESP32Marauder/wiki) for a full overview of ESP32 Marauder.
+
+### For Sale Now
+
+You can buy the official ESP32 Marauder hardware using [this link](https://www.justcallmekokollc.com).
