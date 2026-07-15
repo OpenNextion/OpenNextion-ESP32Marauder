@@ -1,37 +1,174 @@
-<!---[![License: MIT](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/justcallmekoko/ESP32Marauder/blob/master/LICENSE)--->
-<!---[![Gitter](https://badges.gitter.im/justcallmekoko/ESP32Marauder.png)](https://gitter.im/justcallmekoko/ESP32Marauder)--->
-<!---[![Build Status](https://travis-ci.com/justcallmekoko/ESP32Marauder.svg?branch=master)](https://travis-ci.com/justcallmekoko/ESP32Marauder)--->
-<!---Shields/Badges https://shields.io/--->
+# OpenNextion ESP32 Marauder
 
-# ESP32 Marauder
-<p align="center"><img alt="Marauder logo" src="https://github.com/justcallmekoko/ESP32Marauder/blob/master/pictures/marauder_skull_patch_04_full_final.png?raw=true" width="300"></p>
+[![English](https://img.shields.io/badge/lang-English-blue)](./README.md)
+[![中文](https://img.shields.io/badge/lang-中文-red)](./README.zh-CN.md)
+
 <p align="center">
-  <b>A suite of WiFi/Bluetooth offensive and defensive tools for the ESP32</b>
-  <br><br>
-  <a href="https://github.com/justcallmekoko/ESP32Marauder/blob/master/LICENSE"><img alt="License" src="https://img.shields.io/github/license/mashape/apistatus.svg"></a>
-  <a href="https://gitter.im/justcallmekoko/ESP32Marauder"><img alt="Gitter" src="https://badges.gitter.im/justcallmekoko/ESP32Marauder.png"/></a>
-  <br>
-  <a href="https://twitter.com/intent/follow?screen_name=jcmkyoutube"><img src="https://img.shields.io/twitter/follow/jcmkyoutube?style=social&logo=twitter" alt="Twitter"></a>
-  <a href="https://www.instagram.com/just.call.me.koko"><img src="https://img.shields.io/badge/Follow%20Me-Instagram-orange" alt="Instagram"/></a>
-  <br><br>
+  <img src="docs/images/opennextion-esp32-marauder-demo-a8f4c2.jpg" alt="OpenNextion ESP32 Marauder demo on OpenNextion display" width="820">
 </p>
 
+OpenNextion ESP32 Marauder is an OpenNextion board support fork of
+[ESP32 Marauder](https://github.com/justcallmekoko/ESP32Marauder). It adds
+ready-to-build firmware targets for OpenNextion ESP32-S3 rectangular display
+boards with SPI TFT LCD, CST826 capacitive touch, OPI PSRAM, and SDMMC storage.
 
-## OpenNextion Board Support
+This repository is intended to make ESP32 Marauder easier to build, flash, and
+validate on supported OpenNextion development boards while the upstream board
+support pull requests are under review.
 
-This fork adds ESP32 Marauder support for the following OpenNextion ESP32-S3 boards while the upstream pull requests are under review.
-Original project: [justcallmekoko/ESP32Marauder](https://github.com/justcallmekoko/ESP32Marauder)
+## Supported Displays
 
-[![OpenNextion ESP32 Marauder demo](https://github.com/OpenNextion/OpenNextion-Example-ESP32Marauder/releases/download/demo-screenshot/demo_screenshot.jpg)](https://github.com/OpenNextion/OpenNextion-Example-ESP32Marauder/releases/tag/demo-video)
+The current public release targets two OpenNextion portrait displays:
 
-Click the screenshot above to open the demo video.
+| Display model | Size | Resolution | Orientation | Status |
+| --- | --- | --- | --- | --- |
+| [ONX3248G035][onx3248g035] | 3.5 inch | 320 x 480 | Portrait | Verified |
+| [ONX2432G028][onx2432g028] | 2.8 inch | 240 x 320 | Portrait | Verified |
 
-| Board | Display | Touch | Storage | Build flag | TFT setup |
-| --- | --- | --- | --- | --- | --- |
-| [ONX2432G028](https://github.com/OpenNextion/OpenNextion-SKU-ONX2432G028) | 2.8 inch ST7789, 240 x 320 | CST826 I2C capacitive touch | 1-bit SDMMC | `MARAUDER_ONX2432G028` | `User_Setup_onx2432g028.h` |
-| [ONX3248G035](https://github.com/OpenNextion/OpenNextion-SKU-ONX3248G035) | 3.5 inch ST7796U, 320 x 480 | CST826 I2C capacitive touch | 1-bit SDMMC | `MARAUDER_ONX3248G035` | `User_Setup_onx3248g035.h` |
+Build-time board selection is explicit:
 
-Both targets use ESP32-S3R8 modules with 16 MB flash and 8 MB OPI PSRAM. The board-level GitHub Actions targets use Arduino-ESP32 `2.0.11`, NimBLE-Arduino `1.3.8`, `PartitionScheme=default_8MB`, `FlashSize=16M`, `PSRAM=opi`, and UART0 upload/serial settings.
+```sh
+arduino-cli compile --build-property "compiler.cpp.extra_flags=-DMARAUDER_ONX3248G035" esp32_marauder
+arduino-cli compile --build-property "compiler.cpp.extra_flags=-DMARAUDER_ONX2432G028" esp32_marauder
+```
+
+Do not flash firmware built for one display model onto the other display model.
+
+## Touchscreen Navigation
+
+The supported OpenNextion boards do not use discrete hardware buttons for the
+ESP32 Marauder UI. Navigation and scan controls use the existing ESP32 Marauder
+touchscreen menu and virtual button behavior, with layout adjustments for the
+OpenNextion screen sizes.
+
+On menu screens, the display is divided into three touch zones:
+
+- Top area: move selection up
+- Middle area: select / enter
+- Bottom area: move selection down
+
+During scan or monitor screens, the firmware uses the existing ESP32 Marauder
+on-screen virtual buttons such as `X`, `-`, `+`, and `HOP` when available.
+
+## Background
+
+ESP32 Marauder is an excellent ESP32 WiFi and Bluetooth security tool project.
+The upstream project already supports multiple ESP32-based devices, but the
+OpenNextion ESP32-S3 display boards need dedicated board-level configuration for
+LCD initialization, touch input, PSRAM, SDMMC storage, and build automation.
+
+This fork keeps the original ESP32 Marauder application behavior and adds the
+OpenNextion-specific hardware support needed by the supported boards.
+
+## 3D Printed Enclosure
+
+I also designed simple 3D printed enclosures for the supported OpenNextion
+display sizes and published them on MakerWorld. Anyone who needs them can
+download and print them for free.
+
+Each enclosure is a single-piece print and is easy to install. Peel off the tape
+around the edge of the matching OpenNextion display, then press the display into
+the printed enclosure and use the adhesive edge to hold it in place.
+
+MakerWorld project links:
+
+- 3.5 inch ONX3248G035 enclosure: link to be added
+- 2.8 inch ONX2432G028 enclosure: link to be added
+
+## Current Porting Work
+
+This version is based on ESP32 Marauder and adds OpenNextion multi-board
+support. The main changes are:
+
+### 1. OpenNextion Board Support
+
+OpenNextion ESP32 Marauder includes dedicated board support for:
+
+- [ONX3248G035][onx3248g035] 3.5 inch portrait display
+- [ONX2432G028][onx2432g028] 2.8 inch portrait display
+
+Each board has its own TFT_eSPI setup file and board macro. The selected board
+is controlled at build time by `MARAUDER_ONX3248G035` or
+`MARAUDER_ONX2432G028`.
+
+### 2. Display and Touch Initialization
+
+The port adds the OpenNextion display and touch initialization required by the
+supported boards:
+
+- ST7796U TFT setup for ONX3248G035
+- ST7789 TFT setup for ONX2432G028
+- CST826 I2C capacitive touch support
+- PCF8574 IO expander support for LCD reset and SDCS control
+- Board-specific TFT_eSPI setup selection during local and CI builds
+
+### 3. PSRAM and SDMMC Support
+
+Both supported boards use ESP32-S3R8 modules with 16 MB flash and 8 MB OPI
+PSRAM. The port also enables 1-bit SDMMC support for the onboard SD card slot,
+so ESP32 Marauder file features can use the onboard storage.
+
+### 4. GitHub Actions Build Targets
+
+The project includes GitHub Actions board matrix entries for both OpenNextion
+targets. The build targets use Arduino-ESP32 `2.0.11`, NimBLE-Arduino `1.3.8`,
+`PartitionScheme=default_8MB`, `FlashSize=16M`, `PSRAM=opi`, and UART0
+upload/serial settings.
+
+## Current Validation Status
+
+### Display Validation
+
+<p align="center">
+  <img src="docs/images/opennextion-esp32-marauder-validation-6d91b7.jpg" alt="OpenNextion ESP32 Marauder UI on OpenNextion display" width="720">
+</p>
+
+- [ONX3248G035][onx3248g035] portrait mode has been validated on real hardware
+- [ONX2432G028][onx2432g028] portrait mode has been validated on real hardware
+- Clean source builds passed for both OpenNextion board targets
+- Display color order has been validated on hardware
+- CST826 touch input has been validated with the ESP32 Marauder touch UI
+- SD card mounting and directory listing have been validated through SDMMC
+
+### Firmware Validation Matrix
+
+Legend: ✅ Verified / ⚠️ Partially verified or hardware-dependent / ⏳ Not tested
+
+| Board | Build | Boot | Display | Touch | SDMMC | Notes |
+| --- | --- | --- | --- | --- | --- | --- |
+| ONX3248G035 | ✅ Verified | ✅ Verified | ✅ Verified | ✅ Verified | ✅ Verified | 3.5 inch ST7796U display |
+| ONX2432G028 | ✅ Verified | ✅ Verified | ✅ Verified | ✅ Verified | ✅ Verified | 2.8 inch ST7789 display |
+
+## Firmware Download and Flashing
+
+Download firmware from the latest GitHub Release page. The current release
+provides one full initial flashing image per supported display model. A merged binary is
+intended for full initial flashing from address `0x0`.
+
+| Display model | Firmware file | Flash address |
+| --- | --- | --- |
+| [ONX3248G035][onx3248g035] | `opennextion-esp32-marauder-v0.1.0-onx3248g035.bin` | `0x0` |
+| [ONX2432G028][onx2432g028] | `opennextion-esp32-marauder-v0.1.0-onx2432g028.bin` | `0x0` |
+
+Flash a merged binary with:
+
+```sh
+python -m esptool --chip esp32s3 -p /dev/cu.wchusbserial1110 -b 921600 write_flash \
+  0x0 ./opennextion-esp32-marauder-v0.1.0-onx2432g028.bin
+```
+
+Replace the serial port and firmware file name as needed for your board.
+
+For this project, full firmware flashing is recommended. OTA firmware downloads
+are not provided unless the OTA flow is separately validated. For older releases,
+use the matching firmware files and SHA256 values from each GitHub Release page.
+
+## Local Build, Flash and Monitor
+
+The local build commands below use a temporary `CustomTFT_eSPI` copy and select
+the matching TFT setup there, so the global Arduino library installation is not
+modified. This mirrors the board setup selection used by the GitHub Actions
+matrix.
 
 ### Build ONX2432G028
 
@@ -81,9 +218,7 @@ arduino-cli compile \
   esp32_marauder
 ```
 
-The commands above build with a temporary `CustomTFT_eSPI` copy and select the matching TFT setup there, so the global Arduino library installation is not modified. The GitHub Actions workflow performs the same setup selection automatically through the board matrix.
-
-### Flash Firmware
+### Flash Separate Build Outputs
 
 Use the board-specific build directory from the compile command.
 
@@ -95,7 +230,8 @@ python -m esptool --chip esp32s3 -p /dev/cu.wchusbserial1110 -b 921600 write_fla
   0x10000 /private/tmp/onx2432-build/esp32_marauder.ino.bin
 ```
 
-For ONX3248G035, replace `/private/tmp/onx2432-build` with `/private/tmp/onx3248-build`.
+For ONX3248G035, replace `/private/tmp/onx2432-build` with
+`/private/tmp/onx3248-build`.
 
 ### Monitor Serial Log
 
@@ -103,13 +239,14 @@ For ONX3248G035, replace `/private/tmp/onx2432-build` with `/private/tmp/onx3248
 python -m serial.tools.miniterm /dev/cu.wchusbserial1110 115200
 ```
 
-The firmware should boot to the ESP32 Marauder serial prompt after display, touch, settings, and SD initialization.
+The firmware should boot to the ESP32 Marauder serial prompt after display,
+touch, settings, and SD initialization.
 
 ### Generate a Single Merged Binary
 
 ```bash
 python -m esptool --chip esp32s3 merge_bin \
-  -o ./onx2432g028_merged.bin \
+  -o ./opennextion-esp32-marauder-v0.1.0-onx2432g028.bin \
   --flash_mode dio \
   --flash_freq 80m \
   --flash_size 16MB \
@@ -119,25 +256,49 @@ python -m esptool --chip esp32s3 merge_bin \
   0x10000 /private/tmp/onx2432-build/esp32_marauder.ino.bin
 ```
 
-Flash the merged binary from address `0x0`:
+For ONX3248G035, use `/private/tmp/onx3248-build` and output
+`./opennextion-esp32-marauder-v0.1.0-onx3248g035.bin`.
 
-```bash
-python -m esptool --chip esp32s3 -p /dev/cu.wchusbserial1110 -b 921600 write_flash \
-  0x0 ./onx2432g028_merged.bin
-```
+## Documentation
 
-For ONX3248G035, use `/private/tmp/onx3248-build` and output `./onx3248g035_merged.bin`.
+- [Build and flash from source](docs/BUILD_AND_FLASH.md)
+- [Flash release firmware](docs/RELEASE_FLASHING.md)
+- [Supported boards](docs/SUPPORTED_BOARDS.md)
+- [Publication policy](docs/PUBLICATION_POLICY.md)
 
-## Original ESP32 Marauder Project
+## Roadmap
 
-The following links refer to the upstream ESP32 Marauder project.
+Planned next steps:
 
-### Getting Started
+- Keep the OpenNextion fork aligned with upstream ESP32 Marauder where practical
+- Publish convenient merged firmware binaries in GitHub Releases
+- Add enclosure links when the 3D printed enclosure pages are ready
+- Continue validating display, touch, SD, and UI behavior on supported hardware
 
-Download the [latest release](https://github.com/justcallmekoko/ESP32Marauder/releases/latest) of the upstream firmware.
+## Credits
 
-Check out the upstream project [wiki](https://github.com/justcallmekoko/ESP32Marauder/wiki) for a full overview of ESP32 Marauder.
+This project is based on ESP32 Marauder. Thanks to the original author and the
+related open source projects.
 
-### For Sale Now
+- ESP32 Marauder: https://github.com/justcallmekoko/ESP32Marauder
+- OpenNextion open source projects: https://github.com/OpenNextion
 
-You can buy the official ESP32 Marauder hardware using [this link](https://www.justcallmekokollc.com).
+## License
+
+This project preserves the upstream ESP32 Marauder license terms.
+
+ESP32 Marauder is licensed under the MIT License. See `LICENSE` for details.
+Third-party libraries may have their own license notices.
+
+## Disclaimer
+
+This project is not the official upstream ESP32 Marauder project.
+
+ESP32 Marauder is a WiFi and Bluetooth security tool. Use it only on networks,
+devices, and radio environments where you have permission to test. Flashing and
+using third-party firmware involves risk. Please use it only after understanding
+the risks. This project is not responsible for device damage, data loss, network
+connection issues, legal consequences, or any other consequences of use.
+
+[onx3248g035]: https://nextion.tech/wiki/onx3248g035/
+[onx2432g028]: https://nextion.tech/wiki/onx2432g028/
