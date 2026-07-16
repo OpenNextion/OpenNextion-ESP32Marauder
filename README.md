@@ -34,6 +34,38 @@ arduino-cli compile --build-property "compiler.cpp.extra_flags=-DMARAUDER_ONX243
 
 Do not flash firmware built for one display model onto the other display model.
 
+## Quick Start
+
+1. Check your board model in [Supported Displays](#supported-displays).
+2. Download the matching `.bin` file from the latest GitHub Release.
+3. Flash the full image at address `0x0`.
+4. Use the touchscreen menu zones to navigate the ESP32 Marauder UI.
+5. For source builds, see [Build and flash from source](docs/BUILD_AND_FLASH.md).
+
+## Firmware Download and Flashing
+
+Download firmware from the latest GitHub Release page. The current release
+provides one full initial flashing image per supported display model. A merged binary is
+intended for full initial flashing from address `0x0`.
+
+| Display model | Firmware file | Flash address | Version |
+| --- | --- | --- | --- |
+| [ONX3248G035][onx3248g035] | `opennextion-esp32-marauder-v0.1.0-onx3248g035.bin` | `0x0` | `v0.1.0` |
+| [ONX2432G028][onx2432g028] | `opennextion-esp32-marauder-v0.1.0-onx2432g028.bin` | `0x0` | `v0.1.0` |
+
+Flash a merged binary with:
+
+```sh
+python -m esptool --chip esp32s3 -p /dev/cu.wchusbserial1110 -b 921600 write_flash \
+  0x0 ./opennextion-esp32-marauder-v0.1.0-onx2432g028.bin
+```
+
+Replace the serial port and firmware file name as needed for your board.
+
+For this project, full firmware flashing is recommended. OTA firmware downloads
+are not provided unless the OTA flow is separately validated. For older releases,
+use the matching firmware files and SHA256 values from each GitHub Release page.
+
 ## Touchscreen Navigation
 
 The supported OpenNextion boards do not use discrete hardware buttons for the
@@ -139,125 +171,10 @@ Legend: ✅ Verified / ⚠️ Partially verified or hardware-dependent / ⏳ Not
 | ONX3248G035 | ✅ Verified | ✅ Verified | ✅ Verified | ✅ Verified | ✅ Verified | 3.5 inch ST7796U display |
 | ONX2432G028 | ✅ Verified | ✅ Verified | ✅ Verified | ✅ Verified | ✅ Verified | 2.8 inch ST7789 display |
 
-## Firmware Download and Flashing
-
-Download firmware from the latest GitHub Release page. The current release
-provides one full initial flashing image per supported display model. A merged binary is
-intended for full initial flashing from address `0x0`.
-
-| Display model | Firmware file | Flash address |
-| --- | --- | --- |
-| [ONX3248G035][onx3248g035] | `opennextion-esp32-marauder-v0.1.0-onx3248g035.bin` | `0x0` |
-| [ONX2432G028][onx2432g028] | `opennextion-esp32-marauder-v0.1.0-onx2432g028.bin` | `0x0` |
-
-Flash a merged binary with:
-
-```sh
-python -m esptool --chip esp32s3 -p /dev/cu.wchusbserial1110 -b 921600 write_flash \
-  0x0 ./opennextion-esp32-marauder-v0.1.0-onx2432g028.bin
-```
-
-Replace the serial port and firmware file name as needed for your board.
-
-For this project, full firmware flashing is recommended. OTA firmware downloads
-are not provided unless the OTA flow is separately validated. For older releases,
-use the matching firmware files and SHA256 values from each GitHub Release page.
-
 ## Local Build, Flash and Monitor
 
-The local build commands below use a temporary `CustomTFT_eSPI` copy and select
-the matching TFT setup there, so the global Arduino library installation is not
-modified. This mirrors the board setup selection used by the GitHub Actions
-matrix.
-
-### Build ONX2432G028
-
-```bash
-rm -rf /private/tmp/onx2432-build /private/tmp/onx2432-libs
-mkdir -p /private/tmp/onx2432-libs
-
-cp -R ~/Documents/Arduino/libraries/TFT_eSPI /private/tmp/onx2432-libs/CustomTFT_eSPI
-rm -f /private/tmp/onx2432-libs/CustomTFT_eSPI/User_Setup_Select.h
-cp User*.h /private/tmp/onx2432-libs/CustomTFT_eSPI/
-
-sed -i '' 's|^//#include <User_Setup_onx2432g028.h>|#include <User_Setup_onx2432g028.h>|' \
-  /private/tmp/onx2432-libs/CustomTFT_eSPI/User_Setup_Select.h
-
-arduino-cli compile \
-  --fqbn "esp32:esp32:esp32s3:PartitionScheme=default_8MB,FlashSize=16M,PSRAM=opi,CDCOnBoot=default,UploadMode=default" \
-  --library /private/tmp/onx2432-libs/CustomTFT_eSPI \
-  --libraries libraries \
-  --warnings none \
-  --build-path /private/tmp/onx2432-build \
-  --build-property "compiler.cpp.extra_flags=-DMARAUDER_ONX2432G028" \
-  --build-property "compiler.c.elf.extra_flags=-Wl,--allow-multiple-definition" \
-  esp32_marauder
-```
-
-### Build ONX3248G035
-
-```bash
-rm -rf /private/tmp/onx3248-build /private/tmp/onx3248-libs
-mkdir -p /private/tmp/onx3248-libs
-
-cp -R ~/Documents/Arduino/libraries/TFT_eSPI /private/tmp/onx3248-libs/CustomTFT_eSPI
-rm -f /private/tmp/onx3248-libs/CustomTFT_eSPI/User_Setup_Select.h
-cp User*.h /private/tmp/onx3248-libs/CustomTFT_eSPI/
-
-sed -i '' 's|^//#include <User_Setup_onx3248g035.h>|#include <User_Setup_onx3248g035.h>|' \
-  /private/tmp/onx3248-libs/CustomTFT_eSPI/User_Setup_Select.h
-
-arduino-cli compile \
-  --fqbn "esp32:esp32:esp32s3:PartitionScheme=default_8MB,FlashSize=16M,PSRAM=opi,CDCOnBoot=default,UploadMode=default" \
-  --library /private/tmp/onx3248-libs/CustomTFT_eSPI \
-  --libraries libraries \
-  --warnings none \
-  --build-path /private/tmp/onx3248-build \
-  --build-property "compiler.cpp.extra_flags=-DMARAUDER_ONX3248G035" \
-  --build-property "compiler.c.elf.extra_flags=-Wl,--allow-multiple-definition" \
-  esp32_marauder
-```
-
-### Flash Separate Build Outputs
-
-Use the board-specific build directory from the compile command.
-
-```bash
-python -m esptool --chip esp32s3 -p /dev/cu.wchusbserial1110 -b 921600 write_flash \
-  0x0 /private/tmp/onx2432-build/esp32_marauder.ino.bootloader.bin \
-  0x8000 /private/tmp/onx2432-build/esp32_marauder.ino.partitions.bin \
-  0xe000 ~/Library/Arduino15/packages/esp32/hardware/esp32/2.0.11/tools/partitions/boot_app0.bin \
-  0x10000 /private/tmp/onx2432-build/esp32_marauder.ino.bin
-```
-
-For ONX3248G035, replace `/private/tmp/onx2432-build` with
-`/private/tmp/onx3248-build`.
-
-### Monitor Serial Log
-
-```bash
-python -m serial.tools.miniterm /dev/cu.wchusbserial1110 115200
-```
-
-The firmware should boot to the ESP32 Marauder serial prompt after display,
-touch, settings, and SD initialization.
-
-### Generate a Single Merged Binary
-
-```bash
-python -m esptool --chip esp32s3 merge_bin \
-  -o ./opennextion-esp32-marauder-v0.1.0-onx2432g028.bin \
-  --flash_mode dio \
-  --flash_freq 80m \
-  --flash_size 16MB \
-  0x0 /private/tmp/onx2432-build/esp32_marauder.ino.bootloader.bin \
-  0x8000 /private/tmp/onx2432-build/esp32_marauder.ino.partitions.bin \
-  0xe000 ~/Library/Arduino15/packages/esp32/hardware/esp32/2.0.11/tools/partitions/boot_app0.bin \
-  0x10000 /private/tmp/onx2432-build/esp32_marauder.ino.bin
-```
-
-For ONX3248G035, use `/private/tmp/onx3248-build` and output
-`./opennextion-esp32-marauder-v0.1.0-onx3248g035.bin`.
+For source builds, separate build output flashing, serial monitoring, and merged
+binary packaging, see [Build and flash from source](docs/BUILD_AND_FLASH.md).
 
 ## Documentation
 
@@ -287,7 +204,7 @@ related open source projects.
 
 This project preserves the upstream ESP32 Marauder license terms.
 
-ESP32 Marauder is licensed under the MIT License. See `LICENSE` for details.
+ESP32 Marauder is licensed under the MIT License. See [LICENSE](LICENSE) for details.
 Third-party libraries may have their own license notices.
 
 ## Disclaimer

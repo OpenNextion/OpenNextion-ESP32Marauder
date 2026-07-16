@@ -34,6 +34,36 @@ arduino-cli compile --build-property "compiler.cpp.extra_flags=-DMARAUDER_ONX243
 
 不要把为某一款显示屏构建的固件烧写到另一款显示屏上。
 
+## 快速开始
+
+1. 在 [Supported Displays](#supported-displays) 中确认你的开发板型号。
+2. 从最新 GitHub Release 下载对应的 `.bin` 文件。
+3. 将完整镜像烧写到地址 `0x0`。
+4. 使用触摸屏菜单区域操作 ESP32 Marauder UI。
+5. 如需从源码构建，请查看 [从源码构建和烧写](docs/BUILD_AND_FLASH.md)。
+
+## Firmware Download and Flashing
+
+请从最新的 GitHub Release 页面下载固件。当前 release 会为每个受支持的显示屏型号
+提供一个完整初始烧写镜像。merged binary 用于从地址 `0x0` 进行完整初始烧写。
+
+| Display model | Firmware file | Flash address | Version |
+| --- | --- | --- | --- |
+| [ONX3248G035][onx3248g035] | `opennextion-esp32-marauder-v0.1.0-onx3248g035.bin` | `0x0` | `v0.1.0` |
+| [ONX2432G028][onx2432g028] | `opennextion-esp32-marauder-v0.1.0-onx2432g028.bin` | `0x0` | `v0.1.0` |
+
+烧写 merged binary：
+
+```sh
+python -m esptool --chip esp32s3 -p /dev/cu.wchusbserial1110 -b 921600 write_flash \
+  0x0 ./opennextion-esp32-marauder-v0.1.0-onx2432g028.bin
+```
+
+请按实际情况替换串口和固件文件名。
+
+本项目建议使用完整固件烧写。除非 OTA 流程已经单独验证，否则不提供 OTA 固件下载。
+如需旧版本固件，请使用对应 GitHub Release 页面中的固件文件和 SHA256 值。
+
 ## 触摸屏导航
 
 OpenNextion 开发板没有用于 ESP32 Marauder UI 的独立实体按键。界面导航和扫描
@@ -132,121 +162,10 @@ Marauder 的文件相关功能可以使用板载存储。
 | ONX3248G035 | ✅ Verified | ✅ Verified | ✅ Verified | ✅ Verified | ✅ Verified | 3.5 inch ST7796U display |
 | ONX2432G028 | ✅ Verified | ✅ Verified | ✅ Verified | ✅ Verified | ✅ Verified | 2.8 inch ST7789 display |
 
-## Firmware Download and Flashing
-
-请从最新的 GitHub Release 页面下载固件。当前 release 会为每个受支持的显示屏型号
-提供一个完整初始烧写镜像。merged binary 用于从地址 `0x0` 进行完整初始烧写。
-
-| Display model | Firmware file | Flash address |
-| --- | --- | --- |
-| [ONX3248G035][onx3248g035] | `opennextion-esp32-marauder-v0.1.0-onx3248g035.bin` | `0x0` |
-| [ONX2432G028][onx2432g028] | `opennextion-esp32-marauder-v0.1.0-onx2432g028.bin` | `0x0` |
-
-烧写 merged binary：
-
-```sh
-python -m esptool --chip esp32s3 -p /dev/cu.wchusbserial1110 -b 921600 write_flash \
-  0x0 ./opennextion-esp32-marauder-v0.1.0-onx2432g028.bin
-```
-
-请按实际情况替换串口和固件文件名。
-
-本项目建议使用完整固件烧写。除非 OTA 流程已经单独验证，否则不提供 OTA 固件下载。
-如需旧版本固件，请使用对应 GitHub Release 页面中的固件文件和 SHA256 值。
-
 ## Local Build, Flash and Monitor
 
-下面的本地构建命令会创建临时 `CustomTFT_eSPI` 副本，并在临时副本中选择对应
-TFT setup，因此不会修改全局 Arduino 库安装。这与 GitHub Actions matrix 中的
-板级 setup 选择方式一致。
-
-### Build ONX2432G028
-
-```bash
-rm -rf /private/tmp/onx2432-build /private/tmp/onx2432-libs
-mkdir -p /private/tmp/onx2432-libs
-
-cp -R ~/Documents/Arduino/libraries/TFT_eSPI /private/tmp/onx2432-libs/CustomTFT_eSPI
-rm -f /private/tmp/onx2432-libs/CustomTFT_eSPI/User_Setup_Select.h
-cp User*.h /private/tmp/onx2432-libs/CustomTFT_eSPI/
-
-sed -i '' 's|^//#include <User_Setup_onx2432g028.h>|#include <User_Setup_onx2432g028.h>|' \
-  /private/tmp/onx2432-libs/CustomTFT_eSPI/User_Setup_Select.h
-
-arduino-cli compile \
-  --fqbn "esp32:esp32:esp32s3:PartitionScheme=default_8MB,FlashSize=16M,PSRAM=opi,CDCOnBoot=default,UploadMode=default" \
-  --library /private/tmp/onx2432-libs/CustomTFT_eSPI \
-  --libraries libraries \
-  --warnings none \
-  --build-path /private/tmp/onx2432-build \
-  --build-property "compiler.cpp.extra_flags=-DMARAUDER_ONX2432G028" \
-  --build-property "compiler.c.elf.extra_flags=-Wl,--allow-multiple-definition" \
-  esp32_marauder
-```
-
-### Build ONX3248G035
-
-```bash
-rm -rf /private/tmp/onx3248-build /private/tmp/onx3248-libs
-mkdir -p /private/tmp/onx3248-libs
-
-cp -R ~/Documents/Arduino/libraries/TFT_eSPI /private/tmp/onx3248-libs/CustomTFT_eSPI
-rm -f /private/tmp/onx3248-libs/CustomTFT_eSPI/User_Setup_Select.h
-cp User*.h /private/tmp/onx3248-libs/CustomTFT_eSPI/
-
-sed -i '' 's|^//#include <User_Setup_onx3248g035.h>|#include <User_Setup_onx3248g035.h>|' \
-  /private/tmp/onx3248-libs/CustomTFT_eSPI/User_Setup_Select.h
-
-arduino-cli compile \
-  --fqbn "esp32:esp32:esp32s3:PartitionScheme=default_8MB,FlashSize=16M,PSRAM=opi,CDCOnBoot=default,UploadMode=default" \
-  --library /private/tmp/onx3248-libs/CustomTFT_eSPI \
-  --libraries libraries \
-  --warnings none \
-  --build-path /private/tmp/onx3248-build \
-  --build-property "compiler.cpp.extra_flags=-DMARAUDER_ONX3248G035" \
-  --build-property "compiler.c.elf.extra_flags=-Wl,--allow-multiple-definition" \
-  esp32_marauder
-```
-
-### Flash Separate Build Outputs
-
-使用编译命令中的板级 build 目录。
-
-```bash
-python -m esptool --chip esp32s3 -p /dev/cu.wchusbserial1110 -b 921600 write_flash \
-  0x0 /private/tmp/onx2432-build/esp32_marauder.ino.bootloader.bin \
-  0x8000 /private/tmp/onx2432-build/esp32_marauder.ino.partitions.bin \
-  0xe000 ~/Library/Arduino15/packages/esp32/hardware/esp32/2.0.11/tools/partitions/boot_app0.bin \
-  0x10000 /private/tmp/onx2432-build/esp32_marauder.ino.bin
-```
-
-对于 ONX3248G035，请将 `/private/tmp/onx2432-build` 替换为
-`/private/tmp/onx3248-build`。
-
-### Monitor Serial Log
-
-```bash
-python -m serial.tools.miniterm /dev/cu.wchusbserial1110 115200
-```
-
-固件应在显示、触摸、设置和 SD 初始化后进入 ESP32 Marauder 串口命令提示符。
-
-### Generate a Single Merged Binary
-
-```bash
-python -m esptool --chip esp32s3 merge_bin \
-  -o ./opennextion-esp32-marauder-v0.1.0-onx2432g028.bin \
-  --flash_mode dio \
-  --flash_freq 80m \
-  --flash_size 16MB \
-  0x0 /private/tmp/onx2432-build/esp32_marauder.ino.bootloader.bin \
-  0x8000 /private/tmp/onx2432-build/esp32_marauder.ino.partitions.bin \
-  0xe000 ~/Library/Arduino15/packages/esp32/hardware/esp32/2.0.11/tools/partitions/boot_app0.bin \
-  0x10000 /private/tmp/onx2432-build/esp32_marauder.ino.bin
-```
-
-对于 ONX3248G035，请使用 `/private/tmp/onx3248-build`，输出文件为
-`./opennextion-esp32-marauder-v0.1.0-onx3248g035.bin`。
+如需从源码构建、烧写独立构建产物、查看串口日志或生成 merged binary，请查看
+[从源码构建和烧写](docs/BUILD_AND_FLASH.md)。
 
 ## Documentation
 
@@ -275,7 +194,7 @@ python -m esptool --chip esp32s3 merge_bin \
 
 本项目保留上游 ESP32 Marauder 的许可证条款。
 
-ESP32 Marauder 使用 MIT License。详情请查看 `LICENSE`。第三方库可能有各自的
+ESP32 Marauder 使用 MIT License。详情请查看 [LICENSE](LICENSE)。第三方库可能有各自的
 许可证说明。
 
 ## Disclaimer
